@@ -1,0 +1,41 @@
+[
+  {
+    "nama": "Noufal",
+    "hp": "085798433331",
+    "tanggal": "2026-04-13",
+    "cart": [
+      {
+        "name": "Bali",
+        "price": 3500000,
+        "image": "https://i.ibb.co.com/spxgR44d/images-2.webp",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "nama": "Elly",
+    "hp": "085603739313",
+    "tanggal": "2026-04-14",
+    "cart": [
+      {
+        "name": "Bali",
+        "price": 3500000,
+        "image": "https://i.ibb.co.com/spxgR44d/images-2.webp",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "nama": "Rudi",
+    "hp": "085798433331",
+    "tanggal": "2026-04-16",
+    "cart": [
+      {
+        "name": "Bali",
+        "price": 3500000,
+        "image": "https://i.ibb.co.com/spxgR44d/images-2.webp",
+        "qty": 1
+      }
+    ]
+  }
+]

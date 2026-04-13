@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWorld PRO FULL</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
+body{background:#000;color:#fff;overflow-x:hidden;}
+
+/* HERO */
+.hero{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  padding:50px;
+  background-size:cover;
+  background-position:center;
+  animation:slider 10s infinite;
+  position:relative;
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.5);
+}
+.hero-content{position:relative;z-index:2;}
+.hero h1{font-size:50px;}
+
+.btn{
+  margin-top:15px;
+  padding:12px 25px;
+  background:gold;
+  border:none;
+  border-radius:30px;
+  cursor:pointer;
+}
+
+/* SLIDER BG */
+@keyframes slider{
+  0%{background-image:url('https://i.ibb.co.com/My84ngW2/images.webp')}
+  50%{background-image:url('https://i.ibb.co.com/JRgYCThT/images-3.webp')}
+  100%{background-image:url('https://i.ibb.co.com/NgXK8V2T/images-4.webp')}
+}
+
+/* PRODUCT */
+.slider-section{padding:20px;margin-top:-80px;}
+.slider{display:flex;gap:20px;overflow-x:auto;}
+.card{min-width:250px;height:340px;border-radius:20px;overflow:hidden;cursor:pointer;position:relative;}
+.card img{width:100%;height:100%;object-fit:cover;}
+.card-info{position:absolute;bottom:0;width:100%;padding:15px;background:rgba(0,0,0,0.5);}
+.price{color:gold;}
+
+/* CART */
+.cart{
+  position:fixed;
+  right:0;
+  top:0;
+  width:350px;
+  height:100%;
+  background:rgba(20,20,20,0.95);
+  backdrop-filter:blur(10px);
+  padding:20px;
+  overflow:auto;
+  display:none;
+}
+
+.cart-item{
+  background:#1e1e1e;
+  margin:10px 0;
+  padding:12px;
+  border-radius:12px;
+}
+
+.cart-item button{
+  margin:5px;
+  padding:6px 10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.cart-total{
+  position:sticky;
+  bottom:0;
+  background:#111;
+  padding:15px;
+  text-align:center;
+  border-top:1px solid #333;
+}
+
+/* FLOAT BTN */
+.cart-btn{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:gold;
+  padding:15px;
+  border-radius:50%;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Explore World 🌍</h1>
+    <button class="btn" onclick="toggleCart()">Lihat Keranjang</button>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="slider-section">
+  <div class="slider" id="productSlider"></div>
+</section>
+
+<!-- CART -->
+<div class="cart" id="cart">
+  <h3 style="text-align:center">🛒 Keranjang</h3>
+  <div id="cartItems"></div>
+
+  <div class="cart-total">
+    TOTAL: Rp <span id="total">0</span><br><br>
+    <button onclick="showCheckout()">Checkout</button>
+    <button onclick="clearCart()">Reset</button>
+  </div>
+</div>
+
+<div class="cart-btn" onclick="toggleCart()">🛒</div>
+
+<!-- CHECKOUT -->
+<section class="checkout" id="checkout" style="display:none; padding:20px;">
+  <h2>📊 Data Booking Masuk</h2>
+
+<a href="/export">
+<button style="padding:10px;background:gold;border:none;border-radius:8px;">
+⬇ Download Excel
+</button>
+</a>
+
+  <h3>🛒 Pesanan</h3>
+  <div id="checkoutItems"></div>
+  <h3>Total: Rp <span id="checkoutTotal">0</span></h3>
+
+  <h3>📋 Data Pemesan</h3>
+  <input type="text" id="nama" placeholder="Nama Lengkap"><br>
+  <input type="text" id="hp" placeholder="No WhatsApp"><br>
+  <input type="date" id="tanggal"><br><br>
+
+  <button onclick="checkoutWA()">Kirim ke WhatsApp</button>
+</section>
+
+<script>
+
+// PRODUCTS
+let products = [
+  {name:"Bali", price:3500000, image:"https://i.ibb.co.com/spxgR44d/images-2.webp"},
+  {name:"Paris", price:12000000, image:"https://i.ibb.co.com/My84ngW2/images.webp"},
+  {name:"Japan", price:10000000, image:"https://i.ibb.co.com/PspjMYhS/kastil.webp"},
+  {name:"Swiss", price:15000000, image:"https://i.ibb.co.com/0pqCpg0n/images-5.webp"},
+];
+
+// CART
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+cart = cart.map(i => ({...i, qty:i.qty || 1}));
+
+function save(){
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+// FORMAT
+function formatRupiah(num){
+  return new Intl.NumberFormat("id-ID").format(num);
+}
+
+// RENDER PRODUCT
+function renderProducts(){
+  let el = document.getElementById("productSlider");
+  el.innerHTML = "";
+
+  products.forEach((p,i)=>{
+    el.innerHTML += `
+      <div class="card" onclick="addToCart(${i})">
+        <img src="${p.image}">
+        <div class="card-info">
+          <h3>${p.name}</h3>
+          <p class="price">Rp ${formatRupiah(p.price)}</p>
+        </div>
+      </div>
+    `;
+  });
+}
+
+// ADD CART
+function addToCart(i){
+  let p = products[i];
+  let exist = cart.find(x => x.name === p.name);
+
+  if(exist){
+    exist.qty++;
+  }else{
+    cart.push({...p, qty:1});
+  }
+
+  save();
+  renderCart();
+}
+
+// RENDER CART
+function renderCart(){
+  let el = document.getElementById("cartItems");
+  let total = 0;
+  el.innerHTML = "";
+
+  cart.forEach((item,index)=>{
+    let subtotal = item.price * item.qty;
+    total += subtotal;
+
+    el.innerHTML += `
+      <div class="cart-item">
+        <b>${item.name}</b><br>
+        Rp ${formatRupiah(item.price)} x ${item.qty}<br>
+        <b style="color:gold">Rp ${formatRupiah(subtotal)}</b><br>
+
+        <button onclick="changeQty(${index},-1)">➖</button>
+        <button onclick="changeQty(${index},1)">➕</button>
+        <button onclick="removeItem(${index})">🗑</button>
+      </div>
+    `;
+  });
+
+  document.getElementById("total").innerText = formatRupiah(total);
+}
+
+// QTY
+function changeQty(i,val){
+  cart[i].qty += val;
+  if(cart[i].qty <= 0) cart.splice(i,1);
+  save();
+  renderCart();
+}
+
+// REMOVE
+function removeItem(i){
+  cart.splice(i,1);
+  save();
+  renderCart();
+}
+
+// CLEAR
+function clearCart(){
+  cart = [];
+  save();
+  renderCart();
+}
+
+// TOGGLE CART
+function toggleCart(){
+  let c = document.getElementById("cart");
+  c.style.display = c.style.display === "block" ? "none" : "block";
+}
+
+// SHOW CHECKOUT
+function showCheckout(){
+  document.getElementById("checkout").style.display = "block";
+  renderCheckout();
+}
+
+// RENDER CHECKOUT
+function renderCheckout(){
+  let el = document.getElementById("checkoutItems");
+  let total = 0;
+  el.innerHTML = "";
+
+  cart.forEach(item=>{
+    let subtotal = item.price * item.qty;
+    total += subtotal;
+
+    el.innerHTML += `
+      <div>${item.name} (${item.qty}x) - Rp ${formatRupiah(subtotal)}</div>
+    `;
+  });
+
+  document.getElementById("checkoutTotal").innerText = formatRupiah(total);
+}
+
+// WHATSAPP CHECKOUT
+function checkoutWA(){
+
+  let nama = document.getElementById("nama").value;
+  let hp = document.getElementById("hp").value;
+  let tanggal = document.getElementById("tanggal").value;
+
+  if(!nama || !hp || !tanggal){
+    alert("Lengkapi data dulu!");
+    return;
+  }
+
+  if(cart.length === 0){
+    alert("Keranjang kosong!");
+    return;
+  }
+if(cart.length === 0){
+  alert("Keranjang kosong!");
+  return;
+}
+
+fetch("http://127.0.0.1:3000/booking", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    nama,
+    hp,
+    tanggal,
+    cart
+  })
+})
+.then(res => res.json())
+.then(data => {
+  console.log("Server:", data);
+})
+.catch(err => {
+  console.log("Error:", err);
+});
+  let pesan = "📌 *BOOKING PAKET WISATA*%0A%0A";
+  let total = 0;
+
+  cart.forEach(item=>{
+    let subtotal = item.price * item.qty;
+    pesan += "- " + item.name + " (" + item.qty + "x) Rp " + subtotal + "%0A";
+    total += subtotal;
+  });
+
+  pesan += "%0A💰 Total: Rp " + total;
+
+  let url = "https://wa.me/6285798433331?text=" + pesan;
+
+  window.open(url, "_blank");
+
+  alert("Pesanan berhasil dikirim ke WhatsApp!");
+
+  localStorage.removeItem("cart");
+  cart = [];
+  renderCart();
+}
+
+renderProducts();
+renderCart();
+
+</script>
+
+</body>
+</html>
